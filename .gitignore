@@ -1,0 +1,28 @@
+# Environnement virtuel
+.venv/
+venv/
+ENV/
+env/
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Fichiers de configuration IDE / Editeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Variables d'environnement locales
+.env
+
+# Logs et bases de données locales (pour éviter de commettre des données de test)
+*.log
+*.sqlite
+db.sqlite3
+
+# Dossiers OS
+.DS_Store
+Thumbs.db
