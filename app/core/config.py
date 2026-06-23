@@ -1,12 +1,12 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
     PROJECT_NAME: str
     MONGODB_URL: str
     MONGODB_DB_NAME: str
     REDIS_URL : str
 
-    class Config:
-        env_file = ".env"
 
 setting = Settings()
