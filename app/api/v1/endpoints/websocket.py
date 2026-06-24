@@ -1,6 +1,7 @@
 
 import json
 import asyncio
+from app.core.security import get_current_user_ws
 from app.services.chat_service import ChatService
 from app.services.redis_service import RedisService, redis_client
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
@@ -32,12 +33,19 @@ async def pub_listener(websocket: WebSocket, room_id: str):
         await pubsub.close()
 
 
-@router.websocket("/ws/{room_id}/{user_id}")
-async def websocket_endpoint(websocket:WebSocket, room_id: str, user_id: str):
+@router.websocket("/ws/{room_id}")
+async def websocket_endpoint(websocket:WebSocket, room_id: str, token: str | None = None):
     """
     Point d'entrée WebSocket. Gère la connexion, l'enregistrement, 
     la réception de messages et lance l'écoute de Redis.
     """
+
+    user_payload = await get_current_user_ws(websocket, token)
+    authenticated_user_id = user_payload.get("sub")
+
+    if not authenticated_user_id:
+        await websocket.close(code=4008, reason="Invalid token payload")
+        return
 
     await manager.connect(websocket, room_id)
 
@@ -52,7 +60,7 @@ async def websocket_endpoint(websocket:WebSocket, room_id: str, user_id: str):
             if content:
                 message_create = MessageCreate(
                     room_id=room_id,
-                    user_id=user_id,
+                    user_id=authenticated_user_id,
                     content=content
                 )
 

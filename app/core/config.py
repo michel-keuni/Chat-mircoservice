@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     MONGODB_URL: str
     MONGODB_DB_NAME: str
     REDIS_URL : str
+    SECRET_KEY: str
+    ALGORITHM: str
 
 
 setting = Settings()
