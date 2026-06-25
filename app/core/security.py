@@ -33,6 +33,7 @@ async def get_current_user_ws(websocket: WebSocket, token: Optional[str]):
         raise HTTPException(status_code=401, detail="Token missing")
     
     return verify_jwt_token(token)
+
 def create_access_token(data: dict) -> str:
     
     return jwt.encode(data,setting.SECRET_KEY, algorithm=setting.ALGORITHM )
