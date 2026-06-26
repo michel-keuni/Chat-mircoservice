@@ -170,7 +170,7 @@ GET /api/v1/chat/history/{room_id}?limit=50
 
 ## 🔌 WebSocket - Communication en temps réel
 
-### Structure du room_id
+### Structure du `room_id`
 
 Le `room_id` identifie un salon de conversation. Il existe deux cas d'usage :
 
@@ -195,42 +195,75 @@ room_id = "550e8400-e29b-41d4-a716-446655440000"  // UUID
 room_id = "group_dev_team_2026"                   // Identifiant unique
 ```
 
-### Connexion WebSocket
+### 1. Connexion à un salon de discussion (`/ws/{room_id}`)
 
-```
+Cet endpoint permet de rejoindre un salon spécifique afin d'envoyer et de recevoir des messages en temps réel.
+
+```text
 ws://localhost:8000/api/v1/ws/{room_id}?token={jwt_token}
 ```
 
+### 2. Connexion globale de l'utilisateur (`/ws/user/`)
+
+Cet endpoint établit une connexion WebSocket persistante pour un utilisateur, quel que soit le salon où il se trouve.
+
+Son objectif principal est de recevoir des **notifications en temps réel**, notamment lorsqu'un utilisateur reçoit un **message direct (DM)** alors qu'il n'est pas connecté au salon correspondant.
+
+Cette connexion est destinée exclusivement à la réception d'événements globaux (notifications, nouveaux messages directs, invitations, etc.). Le client ne doit pas envoyer de données via ce WebSocket.
+
+```text
+ws://localhost:8000/api/v1/ws/user/?token={jwt_token}
+```
+
 **Paramètres :**
-- `room_id` (path) : Identifiant du salon (voir structure ci-dessus)
+
+- `room_id` (path) : Identifiant du salon (uniquement pour `/ws/{room_id}`)
 - `token` (query parameter) : JWT access token obtenu auprès du service d'authentification
 
-**Exemple avec JavaScript :**
+### Exemple avec JavaScript
 
 ```javascript
-const roomId = "alice_bob";  // Discussion privée
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";  // JWT token
+const roomId = "alice_bob";
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
 
-const ws = new WebSocket(`ws://localhost:8000/api/v1/ws/${roomId}?token=${token}`);
+// Connexion au salon
+const ws = new WebSocket(
+  `ws://localhost:8000/api/v1/ws/${roomId}?token=${token}`
+);
 
 ws.onopen = () => {
-  console.log("Connecté au salon:", roomId);
-  // Envoyer un message texte simple
+  console.log("Connecté au salon :", roomId);
   ws.send("Bonjour !");
 };
 
 ws.onmessage = (event) => {
   const message = JSON.parse(event.data);
-  console.log(`[${message.user_id}]: ${message.content}`);
+  console.log(`[${message.user_id}] : ${message.content}`);
 };
 
-ws.onerror = (error) => {
-  console.error("Erreur WebSocket :", error);
+ws.onerror = (error) => console.error("Erreur WebSocket :", error);
+
+ws.onclose = () => console.log("Déconnecté du salon");
+
+// Connexion globale pour les notifications
+const userWs = new WebSocket(
+  `ws://localhost:8000/api/v1/ws/user/?token=${token}`
+);
+
+userWs.onopen = () => {
+  console.log("Connecté pour les notifications globales.");
 };
 
-ws.onclose = () => {
-  console.log("Déconnecté du salon");
+userWs.onmessage = (event) => {
+  const notification = JSON.parse(event.data);
+  console.log("Nouvelle notification reçue !", notification);
 };
+
+userWs.onerror = (error) =>
+  console.error("Erreur WebSocket (notifications) :", error);
+
+userWs.onclose = () =>
+  console.log("Déconnecté des notifications.");
 ```
 
 ### Protocole de communication
