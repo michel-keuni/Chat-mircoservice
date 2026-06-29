@@ -514,4 +514,4 @@ Créé avec ❤️ par Michel Le Roi
 
 ---
 
-**Dernière mise à jour :** 25 juin 2026
+**Dernière mise à jour :** 29 juin 2026
