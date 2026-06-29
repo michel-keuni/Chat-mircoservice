@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from datetime import datetime
 
@@ -13,12 +13,10 @@ class CallCreate(CallBase):
 
 
 class Call(CallBase):
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
     id: str = Field(..., alias="_id")
     start_time: datetime
     end_time: Optional[datetime] = None
     duration: Optional[int] = None  # Duration in seconds
     status: str  # e.g., 'ongoing', 'completed', 'rejected', 'missed'
-
-    class Config:
-        populate_by_name = True
-        from_attributes = True

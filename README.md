@@ -1,6 +1,6 @@
-# Chat Microservice 🚀
+# Chat & Call Microservice 🚀
 
-Un micro-service de chat moderne et performant construit avec **FastAPI**, offrant une communication en temps réel via WebSocket et une API REST complète.
+Un micro-service de chat & Appels(VoIP) moderne et performant construit avec **FastAPI**, offrant une communication en temps réel via WebSocket et une API REST complète.
 
 ## 🎯 Fonctionnalités
 
@@ -231,10 +231,11 @@ const ws = new WebSocket(
   `ws://localhost:8000/api/v1/ws/${roomId}?token=${token}`
 );
 
-ws.onopen = () => {
-  console.log("Connecté au salon :", roomId);
-  ws.send("Bonjour !");
-};
+  ws.onopen = () => {
+    console.log("Connecté au salon :", roomId);
+    // Envoyer un message JSON conforme au protocole
+    ws.send(JSON.stringify({ type: "chat_message", payload: { content: "Bonjour !" } }));
+  };
 
 ws.onmessage = (event) => {
   const message = JSON.parse(event.data);
@@ -268,25 +269,61 @@ userWs.onclose = () =>
 
 ### Protocole de communication
 
-**Envoi de message :**
-Le client envoie simplement le contenu du message en texte brut :
-
-```
-Bonjour !
-```
-
-**Réception de message :**
-Le serveur envoie les messages en JSON :
+Tous les messages envoyés au serveur via les endpoints WebSocket doivent être au format JSON. Le format général attendu est :
 
 ```json
 {
-  "_id": "507f1f77bcf86cd799439011",
-  "room_id": "alice_bob",
-  "user_id": "alice",
-  "content": "Bonjour !",
-  "timestamp": "2026-06-25T10:30:00.000Z"
+  "type": "<event_type>",
+  "payload": { /* données dépendant du type */ }
 }
 ```
+
+Exemples :
+
+- Envoi d'un message de chat (client -> serveur) :
+
+```json
+{
+  "type": "chat_message",
+  "payload": { "content": "Bonjour !" }
+}
+```
+
+- Message de diffusion (serveur -> clients) : le serveur enrichit et renvoie un objet JSON contenant le message persisté :
+
+```json
+{
+  "type": "chat_message",
+  "payload": {
+    "_id": "507f1f77bcf86cd799439011",
+    "room_id": "alice_bob",
+    "user_id": "alice",
+    "content": "Bonjour !",
+    "timestamp": "2026-06-25T10:30:00.000Z"
+  }
+}
+```
+
+- Événements d'appel / signalisation (exemples) :
+
+```json
+{
+  "type": "call_request",
+  "payload": { "target_user": "bob" }
+}
+
+{
+  "type": "voip_offer",
+  "payload": { "sdp": "v=0..." }
+}
+
+{
+  "type": "ice_candidate",
+  "payload": { "candidate": "candidate:..." }
+}
+```
+
+Note : le serveur attend `type` et `payload` ; les messages dépourvus de ces clés seront ignorés.
 
 ## 🧪 Tests
 
