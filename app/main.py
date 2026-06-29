@@ -23,7 +23,7 @@ app = FastAPI(
     title=setting.PROJECT_NAME,
     version="1.0.0.0",
     description=(
-        "Micro-service de chat en temps réel.\n\n"
+        "Micro-service de chat et appels en temps réel.\n\n"
         "WebSocket: tous les messages reçus par les endpoints WebSocket doivent être envoyés au format JSON. "
         "Le format général attendu est : {\"type\": \"<event_type>\", \"payload\": { ... } }.\n\n"
         "Exemples de `type` et `payload` :\n"
@@ -35,7 +35,7 @@ app = FastAPI(
     contact={
         "name": "Michel Le Roi",
         "url": "https://example.com",
-        "email": "michel@example.com",
+        "email": "keunimichel31@gmail.com",
     },
     license_info={"name": "MIT"},
     terms_of_service="https://example.com/terms",

@@ -12,6 +12,11 @@ Un micro-service de chat & Appels(VoIP) moderne et performant construit avec **F
 - 🧪 **Tests unitaires** avec Pytest
 - 📊 **Versionning API** (v1) pour évolution future
 
+### 📚 Documentation de l'API (Swagger UI)
+*La documentation interactive est générée automatiquement et accessible via `/docs` ou `/redoc`.*
+
+![Documentation Swagger](app/assets/images/screenshot_swagger_doc.png)
+
 ## 🏗️ Architecture
 
 ```
@@ -83,7 +88,6 @@ Créer un fichier `.env` à la racine du projet :
 
 ```env
 # FastAPI Configuration
-PROJECT_NAME=Chat Microservice
 DEBUG=True
 
 # MongoDB
